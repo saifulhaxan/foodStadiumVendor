@@ -27,6 +27,7 @@ export const ProductVariation = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(8);
     const [addVariation, setAddVariation] = useState(false)
+    const [editVariation, setEditVariation] = useState(false)
     const [inputValue, setInputValue] = useState('');
     const [formData, setFormData] = useState();
     const LogoutData = localStorage.getItem('login');
@@ -127,9 +128,9 @@ export const ProductVariation = () => {
                 console.log(data);
                 setAddVariation(false)
                 setShowModal(true);
-                setTimeout(()=>{
+                setTimeout(() => {
                     setShowModal(false);
-                },1000)
+                }, 1000)
                 VariationData()
             })
             .catch((error) => {
@@ -161,6 +162,38 @@ export const ProductVariation = () => {
         }
     ];
 
+
+    const handleEdit = (data) => {
+        document.querySelector('.loaderBox').classList.remove("d-none");
+        fetch(`${BASE_URL}public/api/vendor/view_variation/${data}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${LogoutData}`
+                },
+            }
+        )
+
+            .then(response =>
+                response.json()
+            )
+            .then((data) => {
+              console.log(data?.data?.name)
+                document.querySelector('.loaderBox').classList.add("d-none");
+                setFormData({
+                    ...formData, name: data?.data?.name
+                });
+                console.log(formData)
+                setEditVariation(true)
+
+            })
+            .catch((error) => {
+                document.querySelector('.loaderBox').classList.add("d-none");
+                console.log(error)
+            })
+    }
 
     return (
         <>
@@ -206,6 +239,9 @@ export const ProductVariation = () => {
                                                                 <Dropdown.Menu align="end" className="tableDropdownMenu">
 
                                                                     <Link to={`/product-variation/view-details/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEye} className="tableActionIcon" />View</Link>
+                                                                    <CustomButton className="tableAction"><FontAwesomeIcon icon={faEdit} className="tableActionIcon"
+                                                                        onClick={() => { handleEdit(item?.id) }}
+                                                                    />Edit</CustomButton>
                                                                     {/* <Link to={`/product-management/edit-product/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEdit} className="tableActionIcon" />Edit</Link> */}
 
                                                                 </Dropdown.Menu>
@@ -242,6 +278,26 @@ export const ProductVariation = () => {
 
                         />
                         <CustomButton variant='primaryButton' text='Add' type='submit' onClick={handleSubmit} />
+                    </CustomModal>
+
+
+                    <CustomModal show={editVariation} close={() => { setEditVariation(false) }} >
+                        <CustomInput
+                            label="Add Variation"
+                            type="text"
+                            placeholder="Add Variation"
+                            required
+                            name="name"
+                            labelClass='mainLabel'
+                            inputClass='mainInput'
+                            value={formData?.name}
+                            onChange={(event) => {
+                                setFormData({ ...formData, name: event.target.value });
+                                console.log(formData);
+                            }}
+
+                        />
+                        <CustomButton variant='primaryButton' text='Update' type='submit' onClick={handleSubmit} />
                     </CustomModal>
 
                     <CustomModal show={showModal} close={() => { setShowModal(false) }} success heading='Variation Added Successfully' />

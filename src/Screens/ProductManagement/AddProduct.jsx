@@ -9,6 +9,8 @@ import { CategoryList, DietaryList, MenuList } from "../../Components/CategoryLi
 import './style.css'
 import { BASE_URL } from "../../Api/apiConfig";
 import { json } from "react-router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 export const AddProduct = () => {
     const [unit, setUnit] = useState({});
     const [showModal, setShowModal] = useState(false);
@@ -20,11 +22,12 @@ export const AddProduct = () => {
     const [selectedVariation, setSelectedVariation] = useState(null);
     const [selectedItems, setSelectedItems] = useState({});
     const [items, setItems] = useState([]);
+    const [type, setType] = useState(false)
 
 
     const [formData, setFormData] = useState({
         // product_images: [], // Initialize image as an empty string
-        customize_item_id: []
+        // customize_item_id: []
     });
 
     const base_url = 'https://custom2.mystagingserver.site/food-stadium/public/'
@@ -63,7 +66,7 @@ export const AddProduct = () => {
             }
 
             return updatedItems;
-           
+
         });
 
         // setFormData({
@@ -98,7 +101,7 @@ export const AddProduct = () => {
     const fetchMenu = (event) => {
         const { value } = event.target
         console.log(value)
-        CustomizeMenuList(value)
+        // CustomizeMenuList(value)
         handleChange(event)
     }
 
@@ -160,7 +163,9 @@ export const AddProduct = () => {
             formDataMethod.append(key, formData[key]);
         }
 
-        formDataMethod.append(`variation_id`, JSON.stringify(selectedItems));
+        if (type) {
+            formDataMethod.append(`variation_id`, JSON.stringify(selectedItems));
+        }
 
 
         const imagesArray = [];
@@ -236,24 +241,53 @@ export const AddProduct = () => {
         }
     };
 
+    // const handleVariationChange = async (value, index) => {
+    //     const updatedVariations = [...variations];
+    //     updatedVariations[index].selectedVariation = value;
+
+
+    //     try {
+    //         const items = await fetchItemsForVariation(value);
+    //         updatedVariations[index].items = items;
+    //         setVariations(updatedVariations);
+    //         console.log(variations)
+    //     } catch (error) {
+    //         console.error('Error updating items:', error);
+    //     }
+    // };
+
+    const handleAddVariation = () => {
+        setVariations((prevVariations) => {
+            const newVariation = { id: null, selectedVariation: null, items: [] };
+            return [...prevVariations, newVariation];
+        });
+    };
+
+
+    const handleRemoveVariation = (index) => {
+        setVariations((prevVariations) => {
+            const updatedVariations = [...prevVariations];
+            updatedVariations.splice(index, 1);
+            return updatedVariations;
+
+        });
+        console.log(variations)
+    };
+
     const handleVariationChange = async (value, index) => {
         const updatedVariations = [...variations];
-        updatedVariations[index].selectedVariation = value;
-
+        updatedVariations[index] = { ...updatedVariations[index], selectedVariation: value };
 
         try {
             const items = await fetchItemsForVariation(value);
             updatedVariations[index].items = items;
             setVariations(updatedVariations);
-            console.log(variations)
+            console.log(formData)
         } catch (error) {
             console.error('Error updating items:', error);
         }
     };
 
-    const handleAddVariation = () => {
-        setVariations([...variations, { id: variations?.id, selectedVariation: null, items: [] }]);
-    };
 
 
     return (
@@ -274,7 +308,31 @@ export const AddProduct = () => {
                                 <div className="row">
                                     <div className="col-lg-12">
                                         <div className="row">
-                                            <div className="col-md-6 mb-4">
+                                            <div className="col-md-12">
+                                                <div className="productType">
+                                                    <CustomInput
+                                                        type="radio"
+                                                        name="type"
+                                                        value="simple"
+                                                        label="Simple Product"
+                                                        id="simple"
+                                                        onChange={(() => {
+                                                            setType(false)
+                                                        })}
+                                                    ></CustomInput>
+                                                    <CustomInput
+                                                        type="radio"
+                                                        name="type"
+                                                        value="variable"
+                                                        label="Variation Product"
+                                                        id="variable"
+                                                        onChange={(() => {
+                                                            setType(true)
+                                                        })}
+                                                    ></CustomInput>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-4 mb-4">
                                                 <CustomInput
                                                     label='Add Product Name'
                                                     required
@@ -288,7 +346,7 @@ export const AddProduct = () => {
                                                     onChange={handleChange}
                                                 />
                                             </div>
-                                            <div className="col-md-6 mb-4">
+                                            <div className="col-md-4 mb-4">
                                                 <CustomInput
                                                     label='Enter price'
                                                     required
@@ -302,7 +360,7 @@ export const AddProduct = () => {
                                                     onChange={handleChange}
                                                 />
                                             </div>
-                                            <div className="col-md-12 mb-4">
+                                            <div className="col-md-4 mb-4">
                                                 <SelectBox
                                                     selectClass="mainInput"
                                                     name="category_id"
@@ -315,101 +373,99 @@ export const AddProduct = () => {
                                                 />
 
                                             </div>
-                                            {/* {menu && menu.length > 0 ? (
-                                                <div className="col-md-6 mb-4">
-                                                    <SelectBox
-                                                        selectClass="mainInput"
-                                                        name="customize_item_id"
-                                                        label="Add Customize Menu"
-                                                        placeholder="Select Menu's"
-                                                        required
-                                                        value={formData.customize_item_id}
-                                                        option={menu}
-                                                        onChange={handleChange}
-                                                    />
 
-                                                </div>
-                                            ) : ''
-                                            } */}
-
-                                            <div className="col-md-12 mb-4">
-
-                                                <div className="menuListItem row">
-                                                    <div className="col-md-12 mb-4">
-                                                        <h4>{`Customize ${formData.category_id} Menu`}</h4>
-                                                    </div>
-                                                    {menu && menu.map((item) => (
-                                                        <div className="customDataItem col-md-4 mb-4">
-                                                            <div className="checkList">
-                                                                <input type="checkbox" value={item?.id} id={item?.id} name="addons[]" onClick={handleCustomMenu} />
-                                                            </div>
-                                                            <label for={item?.id}>
-                                                                <div className="productAdonItem">
-                                                                    <div className="productImageIcon">
-                                                                        <img src={base_url + item?.item_pic} />
-                                                                    </div>
-                                                                    <div className="addonDesc">
-                                                                        <h5 className="text-capitalize">{item?.item_name}</h5>
-                                                                        <p>{`$ ${item?.item_price}`}</p>
-                                                                    </div>
-                                                                </div>
-                                                            </label>
+                                            {/* <div className="col-md-12 mb-4">
+                                                {
+                                                    menu != '' ? (
+                                                        <div className="col-md-12 mb-4">
+                                                            <h4>{`Customize Menu`}</h4>
                                                         </div>
+                                                    ) : ''
+                                                }
+                                                <div className="menuListItem row">
+                                                    {menu && menu.map((item) => (
+                                                        <>
+                                                            <div className="customDataItem col-md-4 mb-4">
+                                                                <div className="checkList">
+                                                                    <input type="checkbox" value={item?.id} id={item?.id} name="addons[]" onClick={handleCustomMenu} />
+                                                                </div>
+                                                                <label for={item?.id}>
+                                                                    <div className="productAdonItem">
+                                                                        <div className="productImageIcon">
+                                                                            <img src={base_url + item?.item_pic} />
+                                                                        </div>
+                                                                        <div className="addonDesc">
+                                                                            <h5 className="text-capitalize">{item?.item_name}</h5>
+                                                                            <p>{`$ ${item?.item_price}`}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </label>
+                                                            </div>
+                                                        </>
                                                     ))
                                                     }
                                                 </div>
 
-                                            </div>
-                                            <div className="variationData">
-                                                <div className="d-flex justify-content-end mb-4">
-                                                    <button onClick={handleAddVariation} type="button" className="btn bg-primary text-white">Add More Variation</button>
-                                                </div>
-                                                {variations.map((variation, index) => (
-                                                    <div key={variation.id} className="col-md-12">
-                                                        <h6>Variation Box {index + 1}</h6>
-                                                        <div className="form-controls mb-4">
-                                                            <select
-                                                                className="mainInput"
-                                                                onChange={(e) => handleVariationChange(e.target.value, index)}
-                                                                value={variation.selectedVariation || ''}
-                                                            >
-                                                                <option value="">Select Variation</option>
-                                                                {variationIds.map((item) => (
-                                                                    <option key={item.id} value={item.id}>{item.name}</option>
-                                                                ))}
-                                                            </select>
-                                                        </div>
-                                                        <div className="row">
-                                                            {variation.items.map((item) => (
-                                                                <div key={item.id} className="customDataItem col-md-4 mb-4" id={item?.variation_id}>
-                                                                    <div className="checkList">
-                                                                        <input
-                                                                            type="checkbox"
-                                                                            value={item?.id}
-                                                                            id={item?.id}
-                                                                            name="addons[]"
-                                                                            onClick={() => handleSelectedItem(item?.variation_id, item?.id)}
-                                                                            checked={selectedItems[item?.variation_id]?.includes(item?.id)}
-                                                                        />
-                                                                    </div>
-                                                                    <label for={item?.id}>
-                                                                        <div className="productAdonItem">
-                                                                            <div className="productImageIcon">
-                                                                                <img src={base_url + item?.image} />
-                                                                            </div>
-                                                                            <div className="addonDesc">
-                                                                                <h5 className="text-capitalize">{item?.title}</h5>
-                                                                                <p>{`$ ${item?.price}`}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </label>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                            </div> */}
 
-                                            </div>
+                                            {type && (
+                                                <div className="variationData">
+
+                                                    {variations.map((variation, index) => (
+                                                        <div key={variation.id} className="col-md-6">
+                                                            <h6 className="font-weight-bold">Variation Box {index + 1}</h6>
+                                                            <div className="form-controls mb-4 d-flex align-items-center gap-3">
+                                                                <select
+                                                                    className="mainInput"
+                                                                    onChange={(e) => handleVariationChange(e.target.value, index)}
+                                                                    value={variation.selectedVariation || ''}
+                                                                >
+                                                                    <option>Select Variation</option>
+                                                                    {variationIds
+                                                                        .filter((item) => variations.every((v) => v.selectedVariation !== item.id))
+                                                                        .map((item) => (
+                                                                            <option key={item.id} value={item.id}>
+                                                                                {item.name}
+                                                                            </option>
+                                                                        ))}
+                                                                </select>
+                                                                <div className="d-flex justify-content-end">
+                                                                    <button onClick={handleAddVariation} type="button" className="btn primaryButton text-white addBtn"><FontAwesomeIcon icon={faPlusCircle}></FontAwesomeIcon></button>
+                                                                    <button onClick={() => { handleRemoveVariation(index) }} type="button" className="btn primaryButton text-white trashBtn"><FontAwesomeIcon icon={faMinusCircle}></FontAwesomeIcon></button>
+                                                                </div>
+                                                            </div>
+                                                            <div className="row">
+                                                                {variation.items.map((item) => (
+                                                                    <div key={item.id} className="customDataItem col-md-4 mb-4" id={item?.variation_id}>
+                                                                        <div className="checkList">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                value={item?.id}
+                                                                                id={item?.id}
+                                                                                name="addons[]"
+                                                                                onClick={() => handleSelectedItem(item?.variation_id, item?.id)}
+                                                                                checked={selectedItems[item?.variation_id]?.includes(item?.id)}
+                                                                            />
+                                                                        </div>
+                                                                        <label for={item?.id}>
+                                                                            <div className="productAdonItem">
+                                                                                <div className="productImageIcon">
+                                                                                    <img src={base_url + item?.image} />
+                                                                                </div>
+                                                                                <div className="addonDesc">
+                                                                                    <h5 className="text-capitalize">{item?.title}</h5>
+                                                                                    <p>{`$ ${item?.price}`}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </label>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+
+                                                </div>
+                                            )}
 
                                             <div className="col-md-6 mb-4">
                                                 <SelectBox

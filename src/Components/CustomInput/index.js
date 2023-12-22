@@ -33,6 +33,7 @@ const CustomInput = (props) => {
           onChange={props?.onChange} 
           value={props.value} 
           multiple={props.multiple}
+          checked={props.checked}
           />
         }
       </div>

@@ -115,7 +115,7 @@ export const ProductDetails = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="row">
+                            {/* <div className="row">
                                 <div className="col-md-12 mb-4">
                                     <h2 className="mainTitle">
                                         Customize Products
@@ -137,7 +137,7 @@ export const ProductDetails = () => {
                                     )
                                 )
                                 }
-                            </div>
+                            </div> */}
                             {/* variations  */}
                             {
                                 data?.variation && data?.variation?.map((item, index) => (

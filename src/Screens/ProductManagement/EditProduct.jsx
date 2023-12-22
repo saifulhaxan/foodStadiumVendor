@@ -103,16 +103,15 @@ export const EditProduct = () => {
         const updatedVariations = [...variations];
         updatedVariations[index].selectedVariation = value;
 
-
         try {
             const items = await fetchItemsForVariation(value);
             updatedVariations[index].items = items;
             setVariations(updatedVariations);
-            console.log(variations)
         } catch (error) {
             console.error('Error updating items:', error);
         }
     };
+
 
     const handleAddVariation = () => {
         setVariations([...variations, { id: variations?.id, selectedVariation: null, items: [] }]);
@@ -149,7 +148,7 @@ export const EditProduct = () => {
                 return response.json()
             })
             .then((data) => {
-                console.log(data?.data?.variation_id)
+                // console.log(data?.data?.variation_id)
                 document.querySelector('.loaderBox').classList.add("d-none");
                 setFormData(data?.data)
                 CustomizeMenuList(data?.data?.category_id)
@@ -347,6 +346,26 @@ export const EditProduct = () => {
     }, [])
 
 
+    useEffect(() => {
+        const fetchVariationIds = async () => {
+            try {
+                const response = await fetch(`${BASE_URL}api/vendor/get_variation_ids`, {
+                    headers: {
+                        'Authorization': `Bearer ${LogoutData}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const data = await response.json();
+                setVariationIds(data?.data || []);
+                console.log('variation', variationIds)
+            } catch (error) {
+                console.error('Error fetching variation IDs:', error);
+            }
+        };
+
+        fetchVariationIds();
+    }, []);
+
     console.log(formData?.category_id)
 
 
@@ -434,7 +453,7 @@ export const EditProduct = () => {
 
                                                 <div className="menuListItem row">
                                                     <div className="col-md-12 mb-4">
-                                                        <h4>{`Customize ${formData.category_id} Menu`}</h4>
+                                                        <h4>{`Customize Menu`}</h4>
                                                     </div>
                                                     {menu && menu.map((item) => (
                                                         <div className="customDataItem col-md-4 mb-4">
@@ -471,7 +490,63 @@ export const EditProduct = () => {
 
                                             {/* edit varaiation data  */}
 
+
                                             <div className="variationData">
+                                                <div className="d-flex justify-content-end mb-4">
+                                                    <button onClick={handleAddVariation} type="button" className="btn bg-primary text-white">
+                                                        Add More Variation
+                                                    </button>
+                                                </div>
+                                                {variations.map((variation, index) => (
+                                                    <div key={index} className="col-md-12">
+                                                        <h6>Variation Box {index + 1}</h6>
+                                                        <div className="form-controls mb-4">
+                                                            <select
+                                                                className="mainInput"
+                                                                onChange={(e) => handleVariationChange(e.target.value, index)}
+                                                                value={variation.selectedVariation || ''}
+                                                            >
+                                                                <option value="">Select Variation</option>
+                                                                {variationIds.map((item) => (
+                                                                    <option key={item.id} value={item.id}>
+                                                                        {item.name}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                        <div className="row">
+                                                            {variation.items.map((item) => (
+                                                                <div key={item.id} className="customDataItem col-md-4 mb-4" id={item?.variation_id}>
+                                                                    <div className="checkList">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            value={item?.id}
+                                                                            id={item?.id}
+                                                                            name="addons[]"
+                                                                            onClick={() => handleSelectedItem(item?.variation_id, item?.id)}
+                                                                            checked={selectedItems[item?.variation_id]?.includes(item?.id)}
+                                                                        />
+                                                                    </div>
+                                                                    <label for={item?.id}>
+                                                                        <div className="productAdonItem">
+                                                                            <div className="productImageIcon">
+                                                                                <img src={base_url + item?.image} />
+                                                                            </div>
+                                                                            <div className="addonDesc">
+                                                                                <h5 className="text-capitalize">{item?.title}</h5>
+                                                                                <p>{`$ ${item?.price}`}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </label>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+
+                                            {/* <div className="variationData">
                                                 <div className="d-flex justify-content-end mb-4">
                                                     <button onClick={handleAddVariation} type="button" className="btn bg-primary text-white">Add More Variation</button>
                                                 </div>
@@ -520,7 +595,7 @@ export const EditProduct = () => {
                                                     </div>
                                                 ))}
 
-                                            </div>
+                                            </div> */}
                                             {/* end  */}
 
 

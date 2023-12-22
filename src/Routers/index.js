@@ -67,7 +67,7 @@ export default function AdminRouter() {
         <Route path="/product-variation/view-details/:id" element={<ProtectedRoutes Components={ViewVariation} />} />
 
     
-        <Route path="/customise-menu" element={<ProtectedRoutes Components={CustomiseMenu} />} />
+        {/* <Route path="/customise-menu" element={<ProtectedRoutes Components={CustomiseMenu} />} /> */}
         <Route path="/add-menu" element={<ProtectedRoutes Components={AddMenu} />} />
         {/* <Route path="/menu-management/menu-details/:id" element={<ProtectedRoutes Components={menuDetails} />} /> */}
         <Route path="/customise-menu/edit-menu/:id" element={<ProtectedRoutes Components={EditMenu} />} />

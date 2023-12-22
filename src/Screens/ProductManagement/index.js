@@ -175,7 +175,7 @@ export const ProductManagement = () => {
                                 <Dropdown.Menu align="end" className="tableDropdownMenu">
 
                                   <Link to={`/product-management/product-details/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEye} className="tableActionIcon" />View</Link>
-                                  <Link to={`/product-management/edit-product/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEdit} className="tableActionIcon" />Edit</Link>
+                                  {/* <Link to={`/product-management/edit-product/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEdit} className="tableActionIcon" />Edit</Link> */}
 
                                 </Dropdown.Menu>
                               </Dropdown>
