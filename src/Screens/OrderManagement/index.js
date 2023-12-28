@@ -24,7 +24,7 @@ export const OrderManagement = () => {
   const [showModal3, setShowModal3] = useState(false);
   const [showModal4, setShowModal4] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(8);
+  const [itemsPerPage, setItemsPerPage] = useState(15);
   const [inputValue, setInputValue] = useState('');
 
 
@@ -34,11 +34,6 @@ export const OrderManagement = () => {
     setCurrentPage(pageNumber);
   };
 
-  console.log();
-
-  const hanldeRoute = () => {
-    navigate('/add-product')
-  }
 
 
   const inActive = () => {
@@ -50,23 +45,13 @@ export const OrderManagement = () => {
     setShowModal4(true)
   }
 
-  const handleChange = (e) => {
-    setInputValue(e.target.value);
-  }
 
-  const filterData = data.filter(item =>
-    item.title.toLowerCase().includes(inputValue.toLowerCase())
-  );
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filterData.slice(indexOfFirstItem, indexOfLastItem);
-
+  console.log(data)
 
   const ProductData = () => {
     const LogoutData = localStorage.getItem('login');
     document.querySelector('.loaderBox').classList.remove("d-none");
-    fetch('https://custom2.mystagingserver.site/food-stadium/public/api/vendor/product_listing',
+    fetch('https://custom2.mystagingserver.site/food-stadium/public/api/vendor/vendor_order_listing',
       {
         method: 'GET',
         headers: {
@@ -81,7 +66,6 @@ export const OrderManagement = () => {
         response.json()
       )
       .then((data) => {
-        console.log(data.data)
         document.querySelector('.loaderBox').classList.add("d-none");
         setData(data.data);
       })
@@ -91,6 +75,19 @@ export const OrderManagement = () => {
       })
 
   }
+
+
+  const handleChange = (e) => {
+    setInputValue(e.target.value);
+  }
+
+  const filterData = data.filter(item =>
+    item?.user_name?.toLowerCase().includes(inputValue.toLowerCase())
+  );
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filterData.slice(indexOfFirstItem, indexOfLastItem);
 
   useEffect(() => {
     document.title = 'Food Stadium Vendor | Order Management';
@@ -108,29 +105,25 @@ export const OrderManagement = () => {
       title: "User Name",
     },
     {
-      key: "adress",
-      title: "Adress",
+      key: "No of Products",
+      title: "No of Products",
     },
     {
-      key: "email",
-      title: "Email",
+      key: "zipcode",
+      title: "Zipcode",
     },
     {
-      key: "prouduct",
-      title: "Products",
-    },
-    {
-      key: "status",
-      title: "Status",
+      key: "total",
+      title: "Total Price",
     },
     {
       key: "created_at",
       title: "Created On",
     },
-    // {
-    //   key: "action",
-    //   title: "Action",
-    // }
+    {
+      key: "action",
+      title: "Action",
+    }
   ];
 
 
@@ -159,103 +152,40 @@ export const OrderManagement = () => {
 
                     >
                       <tbody>
-                        <tr>
-                          <td>#1254</td>
-                          <td>Jhon</td>
-                          <td>112 street 5, calefornia, US</td>
-                          <td>jhon@hotmail.com</td>
-                          <td>Burger</td>
-                          <td className="greenColor">Paid</td>
-                          <td>11/24/2023</td>
-                          
-                        </tr>
-                        <tr>
-                          <td>#1254</td>
-                          <td>Jhon</td>
-                          <td>112 street 5, calefornia, US</td>
-                          <td>jhon@hotmail.com</td>
-                          <td>Burger</td>
-                          <td className="greenColor">Paid</td>
-                          <td>11/24/2023</td>
-                          
-                        </tr>
-                        <tr>
-                          <td>#1254</td>
-                          <td>Jhon</td>
-                          <td>112 street 5, calefornia, US</td>
-                          <td>jhon@hotmail.com</td>
-                          <td>Burger</td>
-                          <td className="greenColor">Paid</td>
-                          <td>11/24/2023</td>
-                          
-                        </tr>
-                        <tr>
-                          <td>#1254</td>
-                          <td>Jhon</td>
-                          <td>112 street 5, calefornia, US</td>
-                          <td>jhon@hotmail.com</td>
-                          <td>Burger</td>
-                          <td className="greenColor">Paid</td>
-                          <td>11/24/2023</td>
-                          
-                        </tr>
-                        <tr>
-                          <td>#1254</td>
-                          <td>Jhon</td>
-                          <td>112 street 5, calefornia, US</td>
-                          <td>jhon@hotmail.com</td>
-                          <td>Burger</td>
-                          <td className="greenColor">Paid</td>
-                          <td>11/24/2023</td>
-                          {/* <td>
-                             <Dropdown className="tableDropdown">
-                                <Dropdown.Toggle variant="transparent" className="notButton classicToggle">
-                                  <FontAwesomeIcon icon={faEllipsisV} />
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu align="end" className="tableDropdownMenu"> 
-
-                                  <Link to={`/order-management/order-detail/${4}`} className="tableAction"><FontAwesomeIcon icon={faEye} className="tableActionIcon" />View</Link>
-                                 
-                                 </Dropdown.Menu>
-                              </Dropdown>
-                          </td> */}
-                        </tr>
-                      </tbody>
-                     {/* {/* <tbody>
                         {currentItems.map((item, index) => (
                           <tr key={index}>
-                            <td>{index + 1}</td>
-                            <td><img src={base_url + item?.feature_image} className="avatarIcon" /></td>
+                            <td>{item?.id}</td>
                             <td className="text-capitalize">
-                              {item?.title}
+                              {item?.user_name}
                             </td>
-                            <td>{item?.product_price ? `$ ${item?.product_price}` : `$0`}</td>
-                            <td>{item?.category?.name}</td>
-                            <td>{item?.created_at}</td>
+                            <td>{`${item?.order_products?.length} Products`}</td>
+                            <td>{item?.zipcode}</td>
+                            <td>{`$ ${item?.total}`}</td>
+                            <td>{item?.delivery_date}</td>
                             {/* <td className={item.status == 1 ? 'greenColor' : "redColor"}>{item.status == 1 ? 'Active' : "Inactive"}</td> */}
-                            {/* <td> */}
-                              {/* <Dropdown className="tableDropdown">
+                            <td>
+                              <Dropdown className="tableDropdown">
                                 <Dropdown.Toggle variant="transparent" className="notButton classicToggle">
                                   <FontAwesomeIcon icon={faEllipsisV} />
                                 </Dropdown.Toggle>
-                                <Dropdown.Menu align="end" className="tableDropdownMenu"> */}
+                                <Dropdown.Menu align="end" className="tableDropdownMenu">
 
-                                  {/* <Link to={`/order-management/order-detail/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEye} className="tableActionIcon" />View</Link> */}
-                                  {/* <Link to={`/order-management/edit-order/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEdit} className="tableActionIcon" />Edit</Link> */}
+                                  <Link to={`/order-management/order-detail/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEye} className="tableActionIcon" />View</Link>
+                                  {/* <Link to={`/product-management/edit-product/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEdit} className="tableActionIcon" />Edit</Link> */}
 
-                                {/* </Dropdown.Menu>
-                              </Dropdown> */}
-                            {/* </td>
+                                </Dropdown.Menu>
+                              </Dropdown>
+                            </td>
                           </tr>
                         ))}
-                      </tbody> */}
+                      </tbody>
                     </CustomTable>
-                    {/* <CustomPagination
+                    <CustomPagination
                       itemsPerPage={itemsPerPage}
-                      totalItems={data.length}
+                      totalItems={data?.length}
                       currentPage={currentPage}
                       onPageChange={handlePageChange}
-                    /> */}
+                    />
                   </div>
                 </div>
               </div>

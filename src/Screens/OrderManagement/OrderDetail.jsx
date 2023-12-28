@@ -1,39 +1,29 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import { DashboardLayout } from "../../Components/Layout/DashboardLayout";
 import BackButton from "../../Components/BackButton";
 import CustomModal from "../../Components/CustomModal";
+import CustomInput from '../../Components/CustomInput';
+import { SelectBox } from "../../Components/CustomSelect";
 import CustomButton from "../../Components/CustomButton";
+import { CategoryList, DietaryList, MenuList } from "../../Components/CategoryList";
+import { useParams } from "react-router";
+import './style.css'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { BASE_URL } from "../../Api/apiConfig";
+import Accordion from 'react-bootstrap/Accordion';
 
 export const OrderDetails = () => {
-
+    const [showModal, setShowModal] = useState(false);
+    const [formData, setFormData] = useState({});
+    const [variationItem, setVariationItem] = useState();
+    const LogoutData = localStorage.getItem('login');
     const { id } = useParams();
-
     const base_url = 'https://custom2.mystagingserver.site/food-stadium/public/'
 
-    const [data, setData] = useState({});
-
-    const [showModal, setShowModal] = useState(false);
-    const [showModal2, setShowModal2] = useState(false);
-    const [showModal3, setShowModal3] = useState(false);
-    const [showModal4, setShowModal4] = useState(false);
-    const [message, setMessage] = useState(false)
-
-
-    const inActive = () => {
-        setShowModal(false)
-        setShowModal2(true)
-    }
-    const Active = () => {
-        setShowModal3(false)
-        setShowModal4(true)
-    }
-
-    useEffect(() => {
-        const LogoutData = localStorage.getItem('login');
-        document.title = 'Food Stadium Admin | Product Detail';
+    const GetItem = () => {
         document.querySelector('.loaderBox').classList.remove("d-none");
-        fetch(`https://custom2.mystagingserver.site/food-stadium/public/api/vendor/view_product/${id}`,
+        fetch(`${BASE_URL}public/api/order_detail/${id}`,
             {
                 method: 'GET',
                 headers: {
@@ -48,17 +38,85 @@ export const OrderDetails = () => {
             })
             .then((data) => {
                 document.querySelector('.loaderBox').classList.add("d-none");
-                console.log(data)
-
-                setData(data?.data)
-
+                console.log(data?.data)
+                setFormData(data?.data)
             })
             .catch((error) => {
                 document.querySelector('.loaderBox').classList.add("d-none");
                 console.log(error);
             })
-    }, [id]);
-    console.log(data)
+    }
+
+
+    useEffect(() => {
+        GetItem()
+    }, [])
+
+    const SinglefilehandleChange = (event) => {
+        const file = event.target.files[0];
+        const fileName = file;
+        setFormData({
+            ...formData,
+            image: fileName
+        })
+    }
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+
+        console.log(formData)
+    };
+
+
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const formDataMethod = new FormData();
+        for (const key in formData) {
+            formDataMethod.append(key, formData[key]);
+        }
+
+        formDataMethod.append('product_images', formData?.image)
+        formDataMethod.append('variation_id', id)
+
+        console.log(formData)
+
+
+        document.querySelector('.loaderBox').classList.remove("d-none");
+        // Make the fetch request
+        fetch(`${BASE_URL}public/api/vendor/variation_item_add_update`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${LogoutData}`
+            },
+            body: formDataMethod // Use the FormData object as the request body
+        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                document.querySelector('.loaderBox').classList.add("d-none");
+                console.log(data);
+                setShowModal(true)
+                setTimeout(() => {
+                    setShowModal(false)
+                }, 1000)
+                GetItem()
+            })
+            .catch((error) => {
+                document.querySelector('.loaderBox').classList.add("d-none");
+                console.log(error)
+            })
+    };
+
+
+
+
 
     return (
         <>
@@ -68,85 +126,115 @@ export const OrderDetails = () => {
                         <div className="col-12 mb-2">
                             <h2 className="mainTitle">
                                 <BackButton />
-                                Product Details
+                                Order Detail
                             </h2>
                         </div>
                     </div>
                     <div className="row mb-3">
                         <div className="col-12">
-                            {/* <div className="row mb-3 justify-content-end">
-                <div className="col-lg-4 text-end order-1 order-lg-2 mb-3">
-                  <button onClick={() => {
-                    data?.status ? setShowModal(true) : setShowModal3(true)
-                  }} className="notButton primaryColor fw-bold text-decoration-underline">Mark as {data?.status ? 'Inactive' : 'Active'}</button>
-                  <span className={`statusBadge ${data?.status == 1 ? 'statusBadgeActive' : 'statusBadgeInactive'}`}>{data?.status == 1 ? 'Active' : 'Inactive'}</span>
-                </div>
-              </div> */}
-
-
                             <div className="row">
-                                <div className="col-md-6 mb-4">
-
-                                    <div className="productImage">
-                                        {/* {data?.product_images && data?.product_images.length > 0 ?
-                                            (
-                                                <img src={base_url + data?.product_images[0]?.image} />
-                                            ) : (
-                                                <img src={base_url + data?.product_images?.image} />
-                                            )} */}
-                                        <img src={base_url + data?.feature_image} />
+                                <div className="col-md-3 mb-3">
+                                    <div className="boxInfo">
+                                        <h5 className="font-weight-bold">User Name</h5>
+                                        <p>{formData?.user_name}</p>
                                     </div>
                                 </div>
-                                <div className="col-md-6 mb-4">
-                                    <div className="productInfo">
-                                        <h3 className="text-capitalize">{data?.title}</h3>
-                                        <h6><span className="font-weight-bold">Price:</span><span className="text-success">{` $ ${data?.product_price}`}</span></h6>
-                                        <p>{data?.description}</p>
-                                        <p><span className="font-weight-bold">Category:</span> <span>{data?.category?.name}</span></p>
-                                        {data?.dietary?.name && (
-                                            <p><span className="font-weight-bold">Dietary:</span> <span>{data?.dietary?.name}</span></p>
-                                        )}
-
-                                        {data?.menu?.name && (
-                                            <p><span className="font-weight-bold">Menu:</span> <span>{data?.menu?.name}</span></p>
-                                        )}
-
-
+                                <div className="col-md-3 mb-3">
+                                    <div className="boxInfo">
+                                        <h5 className="font-weight-bold">Zip code</h5>
+                                        <p>{formData?.zipcode}</p>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-md-12 mb-4">
-                                    <h2 className="mainTitle">
-                                        Customize Products
-                                    </h2>
+                                <div className="col-md-3 mb-3">
+                                    <div className="boxInfo">
+                                        <h5 className="font-weight-bold">Delivery Date</h5>
+                                        <p>{formData?.delivery_date}</p>
+                                    </div>
                                 </div>
-                                {data?.customize_menu && data?.customize_menu.map((item) =>
-                                    item && (
-                                        <div className="customDataItem col-md-4 mb-4">
-                                            <div className="productAdonItem">
-                                                <div className="productImageIcon">
-                                                    <img src={base_url + item?.item_pic} />
-                                                </div>
-                                                <div className="addonDesc">
-                                                    <h5 className="text-capitalize">{item?.item_name}</h5>
-                                                    <p>{`$ ${item?.item_price}`}</p>
-                                                </div>
+                                {
+                                    formData?.coupon_code && (
+                                        <div className="col-md-3 mb-3">
+                                            <div className="boxInfo">
+                                                <h5 className="font-weight-bold">Coupon Code</h5>
+                                                <p>{formData?.coupon_code}</p>
                                             </div>
                                         </div>
-                                    ) 
-                                )
+                                    )
                                 }
+
+                                <div className="col-md-3 mb-3">
+                                    <div className="boxInfo">
+                                        <h5 className="font-weight-bold">Delivery Type</h5>
+                                        <p>{formData?.delivery_type == 0 ? 'Pick Up' : 'Delivery'}</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+
+                    <div className="row mb-3">
+                        <div className="col-md-12">
+                            <h5 className="mb-4">Products Details</h5>
+                            <Accordion>
+                                {
+                                    formData?.order_products && formData?.order_products.map((item, index) => (
+                                        <Accordion.Item eventKey={index}>
+                                            <Accordion.Header><h5 className="text-capitalize">{item?.product?.title} <span> x {item?.product_id}</span></h5></Accordion.Header>
+                                            <Accordion.Body>
+                                                <div className="col-md-12">
+                                                    <h3 className="subHeading mt-5">Variation Item</h3>
+                                                    <div className="variationList">
+                                                        {item?.variation_item && item?.variation_item?.map((list, index) => (
+                                                           <h4>{list?.title}</h4>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    ))
+                                }
+
+                            </Accordion>
+                        </div>
+                    </div>
+                    <div className="row mb-3 justify-content-end">
+                        <div className="col-md-4">
+                            <div className="checkoutBox shadow p-4">
+                                <table className="table table-striped">
+                                    <tr>
+                                        <td>Product</td>
+                                        <td>Quantity</td>
+                                        <td>Price</td>
+                                    </tr>
+                                    <tr>
+                                        {
+                                            formData?.order_products && formData?.order_products.map((item, index) => (
+                                                <td></td>
+                                            ))
+                                        }
+
+                                    </tr>
+                                </table>
+                                <div className="d-flex justify-content-between">
+                                    <div className="totalTilte">
+                                        <h6>Total Amount</h6>
+                                    </div>
+                                    <div className="totalAmount">
+                                        <h6>{`$ ${formData?.total}`}</h6>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <CustomModal show={showModal} close={() => { setShowModal(false) }} action={inActive} heading='Are you sure you want to mark this user as inactive?' />
-                <CustomModal show={showModal2} close={() => { setShowModal2(false) }} success heading='Marked as Inactive' />
+                <CustomModal show={showModal} close={() => { setShowModal(false) }} success heading='Item Added Successfully.' />
 
-                <CustomModal show={showModal3} close={() => { setShowModal3(false) }} action={Active} heading='Are you sure you want to mark this user as Active?' />
-                <CustomModal show={showModal4} close={() => { setShowModal4(false) }} success heading='Marked as Active' />
             </DashboardLayout>
         </>
     );

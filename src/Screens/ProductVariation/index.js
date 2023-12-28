@@ -112,7 +112,7 @@ export const ProductVariation = () => {
         console.log(formData)
         document.querySelector('.loaderBox').classList.remove("d-none");
         // Make the fetch request
-        fetch(`${BASE_URL}public/api/vendor/variation_add_update`, {
+        fetch(`${BASE_URL}public/api/vendor/variation_add_update/`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -128,6 +128,43 @@ export const ProductVariation = () => {
                 console.log(data);
                 setAddVariation(false)
                 setShowModal(true);
+                setTimeout(() => {
+                    setShowModal(false);
+                }, 1000)
+                VariationData()
+            })
+            .catch((error) => {
+                document.querySelector('.loaderBox').classList.add("d-none");
+                console.log(error)
+            })
+    }
+
+    const handleUpdateVariation = (e) => {
+        e.preventDefault();
+        const varidationId = localStorage.getItem('variationId');
+        const formDataMethod = new FormData();
+        for (const key in formData) {
+            formDataMethod.append(key, formData[key]);
+        }
+        console.log(formData)
+        document.querySelector('.loaderBox').classList.remove("d-none");
+        // Make the fetch request
+        fetch(`${BASE_URL}public/api/vendor/variation_add_update/${varidationId}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${LogoutData}`
+            },
+            body: formDataMethod // Use the FormData object as the request body
+        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                document.querySelector('.loaderBox').classList.add("d-none");
+                console.log(data);
+                setShowModal(true);
+                setEditVariation(false)
                 setTimeout(() => {
                     setShowModal(false);
                 }, 1000)
@@ -180,7 +217,8 @@ export const ProductVariation = () => {
                 response.json()
             )
             .then((data) => {
-              console.log(data?.data?.name)
+                console.log(data?.data?.id)
+                localStorage.setItem('variationId', data?.data?.id);
                 document.querySelector('.loaderBox').classList.add("d-none");
                 setFormData({
                     ...formData, name: data?.data?.name
@@ -239,8 +277,8 @@ export const ProductVariation = () => {
                                                                 <Dropdown.Menu align="end" className="tableDropdownMenu">
 
                                                                     <Link to={`/product-variation/view-details/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEye} className="tableActionIcon" />View</Link>
-                                                                    <CustomButton className="tableAction"><FontAwesomeIcon icon={faEdit} className="tableActionIcon"
-                                                                        onClick={() => { handleEdit(item?.id) }}
+                                                                    <CustomButton className="tableAction" onClick={() => { handleEdit(item?.id) }}><FontAwesomeIcon icon={faEdit} className="tableActionIcon"
+
                                                                     />Edit</CustomButton>
                                                                     {/* <Link to={`/product-management/edit-product/${item?.id}`} className="tableAction"><FontAwesomeIcon icon={faEdit} className="tableActionIcon" />Edit</Link> */}
 
@@ -283,9 +321,9 @@ export const ProductVariation = () => {
 
                     <CustomModal show={editVariation} close={() => { setEditVariation(false) }} >
                         <CustomInput
-                            label="Add Variation"
+                            label="Edit Variation"
                             type="text"
-                            placeholder="Add Variation"
+                            placeholder="Edit Variation"
                             required
                             name="name"
                             labelClass='mainLabel'
@@ -297,7 +335,7 @@ export const ProductVariation = () => {
                             }}
 
                         />
-                        <CustomButton variant='primaryButton' text='Update' type='submit' onClick={handleSubmit} />
+                        <CustomButton variant='primaryButton' text='Update' type='submit' onClick={handleUpdateVariation} />
                     </CustomModal>
 
                     <CustomModal show={showModal} close={() => { setShowModal(false) }} success heading='Variation Added Successfully' />
