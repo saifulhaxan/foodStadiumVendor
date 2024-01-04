@@ -9,7 +9,7 @@ import { CategoryList, DietaryList, MenuList } from "../../Components/CategoryLi
 import { useParams } from "react-router";
 import './style.css'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { BASE_URL } from "../../Api/apiConfig";
 export const EditProduct = () => {
     const [unit, setUnit] = useState({});
@@ -80,7 +80,7 @@ export const EditProduct = () => {
         //     variation_id: selectedItems
         // })
 
-        // console.log(formData)
+        // console.log(selectedItems)
     };
 
     const fetchItemsForVariation = async (variationId) => {
@@ -128,6 +128,7 @@ export const EditProduct = () => {
 
     useEffect(() => {
         newImageShow()
+        console.log(formData)
     }, [])
 
 
@@ -316,6 +317,10 @@ export const EditProduct = () => {
             addProductImages()
         }
 
+        if (selectedItems) {
+            formDataMethod.append(`variation_id`, JSON.stringify(selectedItems));
+        }
+
         document.querySelector('.loaderBox').classList.remove("d-none");
         // Make the fetch request
         fetch(`${BASE_URL}public/api/vendor/product_add_update/${id}`, {
@@ -349,15 +354,15 @@ export const EditProduct = () => {
     useEffect(() => {
         const fetchVariationIds = async () => {
             try {
-                const response = await fetch(`${BASE_URL}api/vendor/get_variation_ids`, {
+                const response = await fetch('https://custom2.mystagingserver.site/food-stadium/public/api/vendor/variation_list', {
                     headers: {
                         'Authorization': `Bearer ${LogoutData}`,
                         'Content-Type': 'application/json',
                     },
                 });
+
                 const data = await response.json();
-                setVariationIds(data?.data || []);
-                console.log('variation', variationIds)
+                setVariationIds(data?.data);
             } catch (error) {
                 console.error('Error fetching variation IDs:', error);
             }
@@ -370,6 +375,15 @@ export const EditProduct = () => {
 
 
 
+    const handleRemoveVariation = (index) => {
+        setVariations((prevVariations) => {
+            const updatedVariations = [...prevVariations];
+            updatedVariations.splice(index, 1);
+            return updatedVariations;
+
+        });
+        console.log(variations)
+    };
 
 
 
@@ -449,7 +463,7 @@ export const EditProduct = () => {
                                             ) : ''
                                             } */}
 
-                                            <div className="col-md-12 mb-4">
+                                            {/* <div className="col-md-12 mb-4">
 
                                                 <div className="menuListItem row">
                                                     <div className="col-md-12 mb-4">
@@ -485,34 +499,48 @@ export const EditProduct = () => {
                                                     }
                                                 </div>
 
-                                            </div>
+                                            </div> */}
 
 
                                             {/* edit varaiation data  */}
-
+                                            {/* <>
+                                                {
+                                                    formData?.variation_id &&
+                                                    Object.entries(formData.variation_id).map(([key, values], index) => (
+                                                        <div key={index}>
+                                                            <p>{key}:</p>
+                                                            {values.map((value, subIndex) => (
+                                                                <p key={subIndex}>{value}</p>
+                                                            ))}
+                                                        </div>
+                                                    ))
+                                                }
+                                            </> */}
 
                                             <div className="variationData">
-                                                <div className="d-flex justify-content-end mb-4">
-                                                    <button onClick={handleAddVariation} type="button" className="btn bg-primary text-white">
-                                                        Add More Variation
-                                                    </button>
-                                                </div>
+                                        
                                                 {variations.map((variation, index) => (
-                                                    <div key={index} className="col-md-12">
-                                                        <h6>Variation Box {index + 1}</h6>
-                                                        <div className="form-controls mb-4">
+                                                    <div key={variation.id} className="col-md-6">
+                                                        <h6 className="font-weight-bold">Variation Box {index + 1}</h6>
+                                                        <div className="form-controls mb-4 d-flex align-items-center gap-3">
                                                             <select
                                                                 className="mainInput"
                                                                 onChange={(e) => handleVariationChange(e.target.value, index)}
                                                                 value={variation.selectedVariation || ''}
                                                             >
-                                                                <option value="">Select Variation</option>
-                                                                {variationIds.map((item) => (
-                                                                    <option key={item.id} value={item.id}>
-                                                                        {item.name}
-                                                                    </option>
-                                                                ))}
+                                                                <option>Select Variation</option>
+                                                                {variationIds
+                                                                    .filter((item) => variations.every((v) => v.selectedVariation !== item.id))
+                                                                    .map((item) => (
+                                                                        <option key={item.id} value={item.id}>
+                                                                            {item.name}
+                                                                        </option>
+                                                                    ))}
                                                             </select>
+                                                            <div className="d-flex justify-content-end">
+                                                                <button onClick={handleAddVariation} type="button" className="btn primaryButton text-white addBtn"><FontAwesomeIcon icon={faPlusCircle}></FontAwesomeIcon></button>
+                                                                <button onClick={() => { handleRemoveVariation(index) }} type="button" className="btn primaryButton text-white trashBtn"><FontAwesomeIcon icon={faMinusCircle}></FontAwesomeIcon></button>
+                                                            </div>
                                                         </div>
                                                         <div className="row">
                                                             {variation.items.map((item) => (
@@ -543,6 +571,7 @@ export const EditProduct = () => {
                                                         </div>
                                                     </div>
                                                 ))}
+
                                             </div>
 
 
