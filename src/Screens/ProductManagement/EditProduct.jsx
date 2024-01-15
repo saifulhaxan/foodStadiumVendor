@@ -214,101 +214,8 @@ export const EditProduct = () => {
         // filehandleChange(event)
     }
 
-    // const filehandleChange = (event) => {
-    //     const file = event.target.files;
-    //     const fileName = file;
-    // // setFormData((formData) =>({
-    // //     ...formData,
-    // //     product_images : file
-    // //     })
-    // // )
-    //     setFiles(fileName)
-    //     console.log(files)
-    // };
+
     console.log("formData", formData)
-
-    // const filehandleChange = (event) => {
-    //     const file = event.target.files; // Assuming you only want to handle one file
-    //     const fileName = file;
-    //     setFiles(fileName);
-    //     const reader = new FileReader();
-
-    //     reader.onload = (e) => {
-
-    //     const imageDataUrl = e.target.result;
-
-
-    //         setFormData((formData) => ({
-    //             ...formData,
-    //             product_images: [
-    //                 ...formData.product_images,
-    //                 {
-    //                     id: generateUniqueId(), // You need to generate a unique ID for the new image
-    //                     product_id: formData.id, // Replace with the appropriate product_id
-    //                     image: imageDataUrl,
-    //                 },
-    //             ],
-    //         }));
-
-    //         // Optionally, you can set the files state if needed
-
-
-    //         console.log(formData.product_images);
-    //     };
-
-    //     // Read the image file as a data URL
-    //     reader.readAsDataURL(file);
-    // };
-
-    // // Helper function to generate a unique ID (use a library like uuid for better uniqueness)
-    // const generateUniqueId = () => {
-    //     return Math.random().toString(36).substr(2, 9);
-    // };
-
-
-
-    // const filehandleChange = (event) => {
-    //     const file = event.target.files;  
-    //     const fileName = file;
-
-    //     const reader = new FileReader();
-
-    //     reader.onload = (e) => {
-    //         const imageDataUrl = file;
-
-    //         setFormData((formData) => {
-    //             const maxId = getMaxId(formData.product_images);
-
-    //             return {
-    //                 ...formData,
-    //                 product_images: [
-    //                     ...formData.product_images,
-    //                     {
-    //                         id: maxId + 1,  
-    //                         product_id: formData.id, 
-    //                         image: fileName,
-    //                     },
-    //                 ],
-    //             };
-    //         });
-
-    //          setFiles(fileName);
-    //     };
-
-    //     // Read the image file as a data URL
-    //     reader.readAsDataURL(file);
-    // };
-
-    // // Helper function to get the current maximum ID from the existing product_images
-    // const getMaxId = (productImages) => {
-    //     if (productImages.length === 0) {
-    //         return 0;
-    //     }
-
-    //     const maxId = Math.max(...productImages.map((image) => parseInt(image.id, 10)), 0);
-    //     return maxId;
-    // };
-
 
 
 
@@ -324,10 +231,8 @@ export const EditProduct = () => {
     const filehandleChange = (event) => {
         const files = event.target.files;
         setFiles(files);
-        // Create an array to store image data URLs
         const imageDataUrls = [];
 
-        // Loop through each selected file
         for (let i = 0; i < files.length; i++) {
             const reader = new FileReader();
 
@@ -335,7 +240,6 @@ export const EditProduct = () => {
                 const imageDataUrl = e.target.result;
 
                 setFormData((formData) => {
-                    // const maxId = getMaxId(formData.product_images);
 
                     return {
                         ...formData,
@@ -363,38 +267,6 @@ export const EditProduct = () => {
 
 
 
-
-
-
-
-    // Render the image in your component
-
-
-
-    // const filehandleChange = (event) => {
-    //     const files = event.target.files; // FileList
-    //     const fileArray = Array.from(files); // Convert FileList to an array
-
-    //     setFormData((formData) => ({
-    //         ...formData,
-    //         product_images: fileArray,
-    //     }));
-
-    //     setFiles(fileArray);
-    //     console.log(fileArray);
-    // };
-
-
-    // const filehandleChange = (event) => {
-    //     const selectedFile = event.target.files[0]; // Assuming you want to handle only one file
-
-    //     setFormData((formData) => ({
-    //         ...formData,
-    //         product_images: selectedFile,
-    //     }));
-
-    //     console.log(selectedFile);
-    // };
 
 
     console.log("fromData", formData)
@@ -847,22 +719,7 @@ export const EditProduct = () => {
                                                     onChange={filehandleChange}
                                                 />
                                                 <div className="galleryBox row">
-                                                    {/* {
-                                                        formData?.product_images && formData?.product_images?.map((item) => (
-                                                            <div className="galleryItem col-md-3 mb-3 position-relative">
-                                                                <img src={base_url + item?.image} />
-                                                                <div className="removeImage" onClick={() => {
-                                                                    handleRemove(item?.id)
-                                                                }}>
-                                                                    <button type="button">
-                                                                        <FontAwesomeIcon icon={faClose} ></FontAwesomeIcon>
-
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        ))
-                                                    } */}
-
+                                                
                                                     {
                                                         formData?.product_images && formData?.product_images?.map((item) => (
                                                             <div className="galleryItem col-md-3 mb-3 position-relative" key={item.id}>
